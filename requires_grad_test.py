@@ -6,13 +6,23 @@ class RandDataset(torch.utils.data.IterableDataset):
     def __init__(self, batch_size, in_size):
         self.batch_size = batch_size
         self.in_size = in_size
+        self.target_device = None
 
     def __iter__(self):
         return self
 
     def __next__(self):
         input = torch.rand(self.batch_size, self.in_size)
+        input.detach_()
+        input.requires_grad_(False)
+        if self.target_device:
+            input = input.to(self.target_device)
+        input.requires_grad_(True)
         return input
+
+    def set_target_device(self, target_device):
+        self.target_device = target_device
+
 
 
 class RandDataLoader(torch.utils.data.DataLoader):
@@ -71,7 +81,8 @@ def main():
         data_iter = TPULoaderIter(para_loader, device)
     else:
         device = torch.device('cuda')
-        data_loader = RandDataLoader(dataset, device)
+        data_loader = RandDataLoader(dataset)
+        data_loader.set_target_device(device)
         data_iter = GPULoaderIter(iter(data_loader))
 
     layer = torch.nn.Linear(in_size, out_size, True).to(device)
@@ -79,11 +90,6 @@ def main():
 
     for step in range(10):
         input = next(data_iter)
-        input.detach_()
-        input.requires_grad_(False)
-        input.random_()
-        input = input.to(device)
-        input.requires_grad_(True)
         output = layer(input)
         loss = ((output - target) ** 2).sum().sqrt() 
         (input_grad,) = torch.autograd.grad(loss, (input,), retain_graph=True)
