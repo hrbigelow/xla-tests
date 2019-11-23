@@ -39,8 +39,7 @@ class RandDataLoader(torch.utils.data.DataLoader):
     def ident(x):
         return x
 
-    def __init__(self, dataset, target_device=None):
-        self.target_device = target_device
+    def __init__(self, dataset):
         super(RandDataLoader, self).__init__(
                 dataset=dataset,
                 batch_sampler=None,
@@ -74,19 +73,19 @@ def main():
     out_size = 15
 
     dataset = RandDataset(batch_size, in_size)
+    data_loader = RandDataLoader(dataset)
 
     if mode == 'TPU':
         import torch_xla.core.xla_model as xm
         import torch_xla.distributed.parallel_loader as pl
         device = xm.xla_device()
-        data_loader = RandDataLoader(dataset, device)
         para_loader = pl.ParallelLoader(data_loader, [device])
         data_iter = TPULoaderIter(para_loader, device)
     else:
         device = torch.device('cuda')
-        data_loader = RandDataLoader(dataset)
-        data_loader.set_target_device(device)
         data_iter = GPULoaderIter(iter(data_loader))
+
+    data_loader.set_target_device(device)
 
     layer = torch.nn.Linear(in_size, out_size, True).to(device)
     target = torch.rand(batch_size, out_size).to(device)
