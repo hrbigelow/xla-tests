@@ -1,5 +1,6 @@
 import sys
 import torch
+from sys import stderr 
 
 
 class RandDataset(torch.utils.data.IterableDataset):
@@ -16,6 +17,8 @@ class RandDataset(torch.utils.data.IterableDataset):
         input.detach_()
         input.requires_grad_(False)
         if self.target_device:
+            print('RandDataset: moving input to target device', file=stderr)
+            stderr.flush()
             input = input.to(self.target_device)
         input.requires_grad_(True)
         return input
