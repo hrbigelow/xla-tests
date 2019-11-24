@@ -39,9 +39,11 @@ class TPULoaderIter(object):
 
 
 def main():
-        tpu_iter = TPULoaderIter(xm.xla_device())
-        a = next(tpu_iter)
-        assert a.requires_grad
+    tpu_iter = TPULoaderIter(xm.xla_device())
+    a = next(tpu_iter)
+    # FAILS
+    assert a.requires_grad
+    
 
 
 if __name__ == '__main__':
