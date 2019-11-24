@@ -14,11 +14,7 @@ class RandDataset(torch.utils.data.IterableDataset):
 
     def __next__(self):
         input = torch.rand(self.batch_size, self.in_size)
-        # input.detach_()
-        # input.requires_grad_(False)
         if self.target_device:
-            # print('RandDataset: moving input to target device', file=stderr)
-            stderr.flush()
             input = input.to(self.target_device)
         input.requires_grad_(True)
         print('in RandDataset::__next__(): input.requires_grad: {}'.format(
