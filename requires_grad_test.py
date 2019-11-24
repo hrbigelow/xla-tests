@@ -84,8 +84,8 @@ def main():
     else:
         device = torch.device('cuda')
         data_iter = GPULoaderIter(iter(data_loader))
+        data_loader.set_target_device(device)
 
-    data_loader.set_target_device(device)
 
     layer = torch.nn.Linear(in_size, out_size, True).to(device)
     target = torch.rand(batch_size, out_size).to(device)
