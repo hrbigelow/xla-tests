@@ -17,10 +17,12 @@ class RandDataset(torch.utils.data.IterableDataset):
         input.detach_()
         input.requires_grad_(False)
         if self.target_device:
-            print('RandDataset: moving input to target device', file=stderr)
+            # print('RandDataset: moving input to target device', file=stderr)
             stderr.flush()
             input = input.to(self.target_device)
         input.requires_grad_(True)
+        print('in RandDataset::__next__(): input.requires_grad: {}'.format(
+            input.requires_grad))
         return input
 
     def set_target_device(self, target_device):
@@ -63,7 +65,9 @@ class TPULoaderIter(object):
         self.per_dev_loader = parallel_loader.per_device_loader(device)
 
     def __next__(self):
-        return self.per_dev_loader.__next__()[0]
+        val = self.per_dev_loader.__next__()[0]
+        print('in TPULoaderIter::__next__(): val: {}'.format(val.requires_grad))
+        return val
 
 
 def main():
@@ -90,7 +94,7 @@ def main():
     layer = torch.nn.Linear(in_size, out_size, True).to(device)
     target = torch.rand(batch_size, out_size).to(device)
 
-    for step in range(10):
+    for step in range(5):
         input = next(data_iter)
         output = layer(input)
         loss = ((output - target) ** 2).sum().sqrt() 
