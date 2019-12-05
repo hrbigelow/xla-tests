@@ -20,12 +20,11 @@ class VirtualBatch(object):
         """
         sets the data for one sample in the batch
         """
-        rg = torch.empty((self.batch_size), dtype=torch.int64).cpu()
+        rg = torch.empty((self.ds.batch_size), dtype=torch.int64).cpu()
         picks = rg.random_() % 1000 
-        nz = self.ds.emb_len
 
         for b, wi in enumerate(picks):
-            self.wav_dec_input[b,...] = wav_enc_input[wav_trim[0]:wav_trim[1]]
+            self.wav_dec_input[b,...] = torch.empty(self.ds.window_batch_size)
 
         assert self.wav_dec_input.shape[0] == 8
 
