@@ -26,12 +26,12 @@ class VirtualBatch(object):
         for b, wi in enumerate(picks):
             self.wav_dec_input[b,...] = torch.empty(self.ds.window_batch_size)
 
-        assert self.wav_dec_input.shape[0] == 8
+        assert self.wav_dec_input.shape[0] == 10 
 
 
     def to(self, device):
         self.wav_dec_input = self.wav_dec_input.to(device)
-        assert self.wav_dec_input.shape[0] == 8
+        assert self.wav_dec_input.shape[0] == 10 
 
 
 class Slice(torch.utils.data.IterableDataset):
